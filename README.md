@@ -1,2 +1,2 @@
 # jtensors
-Java Tensors
+Java Tensors library
