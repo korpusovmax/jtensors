@@ -1,4 +1,4 @@
-package me.korpusovmax.sann;
+package me.korpusovmax.jtensors;
 
 public interface Tensor {
 
