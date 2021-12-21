@@ -1,4 +1,4 @@
-package me.korpusovmax.sann;
+package me.korpusovmax.jtensors;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
