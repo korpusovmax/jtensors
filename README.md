@@ -2,7 +2,7 @@
 Simple Java tensors library
 
 ## Examples
-### Creating different d tensors
+### Creating different type tensors
 #### Scalar
 ```java
 Tensor k = new Tensors.Scalar(3.0d);
