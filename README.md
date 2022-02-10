@@ -16,7 +16,10 @@ Tensor k = new Tensors.Vector(vec);
 ```
 #### Matrix
 ```java
-double[][] vec = new double[][]{{3.0d, 1.0d, 0.5d}, {7.0d, 0.5d, 32.0d}};
+double[][] vec = new double[][]{
+        {3.0d, 1.0d, 0.5d}, 
+        {7.0d, 0.5d, 32.0d}
+};
 Tensor k = new Tensors.Matrix(vec);
 ```
 #### NTensor
