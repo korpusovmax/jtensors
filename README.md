@@ -35,7 +35,7 @@ Tensor ntensor = new Tensors.NTensor(k1, k2);
 Tensor k = Tensors.arrange(5);
 ```
 ```
-[0.0, 1.0, 2.0, 3.0, 4.0]
+k: [0.0, 1.0, 2.0, 3.0, 4.0]
 ```
 ### Operate
 ```java
@@ -43,7 +43,7 @@ Tensor k = new Tensors.Vector(1, 0, 3, 4);
 k = k.operate(new Tensors.Scalar(5), (x, y) -> x * y - 3);
 ```
 ```
-[2.0, -3.0, 12.0, 17.0]
+k: [2.0, -3.0, 12.0, 17.0]
 ```
 ### Shape
 ```java
