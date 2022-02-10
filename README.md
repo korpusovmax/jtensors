@@ -1,7 +1,7 @@
 # Jtensors
 Simple Java tensors library
 
-## Examples
+## Basic functions
 ### Creating different type tensors
 #### Scalar
 ```java
