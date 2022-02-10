@@ -11,7 +11,7 @@ Tensor k = new Tensors.Scalar(3.0d);
 ```java
 Tensor k = new Tensors.Vector(3, 1, 0);
 //or
-double[] vec = new double[]{3.0d, 1.0d, 0.5d};
+double[] vec = new double[]{3.0d, 1.0d, 0.0d};
 Tensor k = new Tensors.Vector(vec);
 ```
 #### Matrix
