@@ -63,12 +63,18 @@ System.out.println(k.transpose());
 ```
 #### ntensor
 ```java
-Tensor k = new Tensors.Matrix(new double[][]{{1, 5, -1}, {2, 3, 4}});
-Tensor m = new Tensors.Matrix(new double[][]{{12, 4, -56}, {7, 23, 9}});
+Tensor k = new Tensors.Matrix(new double[][]{
+        {1, 5, -1}, 
+        {2, 3, 4}
+});
+Tensor m = new Tensors.Matrix(new double[][]{
+        {12, 4, -56}, 
+        {7, 23, 9}
+});
 Tensor ntensor = new Tensors.NTensor(k, m);
 
 System.out.println(ntensor.transpose() + "\n");
-System.out.println(ntensor.transpose(1));
+System.out.println(ntensor.transpose(1)); //1 - transposing axis, default - 0
 ```
 ```
 [[[1.0, 2.0],
