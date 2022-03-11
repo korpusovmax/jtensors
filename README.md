@@ -21,7 +21,13 @@ double[][] vec = new double[][]{
         {7.0d, 0.5d, 32.0d}
 };
 Tensor k = new Tensors.Matrix(vec);
+//or
+Tensor k = new Tensors.Matrix(
+                new Tensors.Vector(3, 1, 0.5),
+                new Tensors.Vector(7, 0.5, 32)
+        );
 ```
+
 #### NTensor
 ```java
 double[][] vec1 = new double[][]{{3.0d, 1.0d, 0.5d}, {7.0d, 0.5d, 32.0d}};
