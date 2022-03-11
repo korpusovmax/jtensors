@@ -84,6 +84,12 @@ public class Tensors {
                 this.value[i] = array[i].clone();
             }
         }
+        public Matrix(Tensors.Vector ... array) {
+            this.value = new double[array.length][array[0].size()];
+            for (int i = 0; i < array.length; i++) {
+                this.value[i] = array[i].value.clone();
+            }
+        }
 
         public int size() {
             return value.length * value[0].length;
