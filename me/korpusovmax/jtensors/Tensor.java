@@ -1,7 +1,6 @@
-package me.korpusovmax.jtensors;
+package me.korpusovmax.sann;
 
 public interface Tensor {
-
     int size();
     int dims();
     int[] shape();
@@ -11,11 +10,21 @@ public interface Tensor {
     default Tensor transpose() {
         return this;
     }
+    default Tensor T() {
+        return transpose();
+    }
     default Tensor transpose(int axis) {
-        return this.transpose();
+        return transpose();
     }
 
     Tensor operate(Tensor l, Tensors.Operation op);
+    default Tensor activate(Tensors.ActivationFunction f) {
+        return new Tensors.Scalar(0);
+    }
+    default Tensor dot(Tensor a) {
+        return new Tensors.Scalar(0);
+    }
+
     default Tensor add(Tensor l){
         return this.operate(l, Tensors.Add);
     }
