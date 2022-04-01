@@ -1,8 +1,10 @@
-package me.korpusovmax.jtensors;
+package me.korpusovmax.sann;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class Tensors {
     //TENSORS TYPES (SCALARS/VECTORS/MATRICES/NTENSORS)
@@ -22,6 +24,9 @@ public class Tensors {
         public int[] shape() {
             return new int[]{};
         }
+        public String toString() {
+            return ("" + value).replaceAll("\\.0", "");
+        }
         public Tensor copy() {
             return new Scalar(value);
         }
@@ -34,14 +39,15 @@ public class Tensors {
             result.value = op.activate(value, ((Scalar)l).value);
             return result;
         }
+        public Tensor activate(ActivationFunction fn) {
+            return new Scalar(fn.activate(value));
+        }
+        //todo:dot
     }
 
     public static class Vector implements Tensor {
         public double[] value;
 
-        /*public Vector(double[] array) {
-            this.value = array;
-        }*/
         public Vector(double ...array) {
             this.value = array.clone();
         }
@@ -56,10 +62,14 @@ public class Tensors {
             return new int[]{value.length};
         }
         public String toString() {
-            return Arrays.toString(value);
+            return Arrays.toString(value).replaceAll("\\.0", "");
         }
         public Tensor copy() {
             return new Vector(value);
+        }
+
+        public double sum() {
+            return Arrays.stream(value).sum();
         }
 
         public Tensor operate(Tensor l, Operation op) {
@@ -72,6 +82,17 @@ public class Tensors {
                 result.value = Arrays.stream(result.value).map(x -> op.activate(x, ((Scalar)l).value)).toArray();
             }
             return result;
+        }
+        public Vector activate(ActivationFunction fn) {
+            return new Vector(IntStream.range(0, value.length).mapToDouble(x -> fn.activate((double)value[x])).toArray());
+        }
+        public Tensor dot (Tensor l) {
+            Matrix a = (Matrix) new Matrix(this);
+
+            if (l instanceof Matrix b) {
+                return new Vector(((Matrix) a.dot(b)).value[0]);
+            }
+            return new Scalar(0);
         }
     }
 
@@ -90,6 +111,12 @@ public class Tensors {
                 this.value[i] = array[i].value.clone();
             }
         }
+        public Matrix(ArrayList<Vector> array) {
+            this.value = new double[array.size()][array.get(0).size()];
+            for (int i = 0; i < array.size(); i++) {
+                this.value[i] = array.get(i).value.clone();
+            }
+        }
 
         public int size() {
             return value.length * value[0].length;
@@ -101,7 +128,8 @@ public class Tensors {
             return new int[]{value.length, value[0].length};
         }
         public String toString() {
-            return Arrays.deepToString(value).replaceAll(", \\[", ",\n\\[");
+            String s = Arrays.deepToString(value).replaceAll(", \\[", ",\n\\[");
+            return s.replaceAll("\\.0", "");
         }
         public Tensor copy() {
             return new Matrix(value);
@@ -128,6 +156,30 @@ public class Tensors {
             }
             return result;
         }
+        public Tensor activate (ActivationFunction fn) {
+            Tensors.Matrix result = this;
+            result.value = IntStream.range(0, value.length).mapToObj(x -> IntStream.range(0, value[0].length).mapToDouble(y -> fn.activate(result.value[x][y])).toArray()).toArray(double[][]::new);
+            return result;
+        }
+        public Tensor dot(Tensor l) {
+            Matrix a = this;
+
+            if (l instanceof Matrix b) {
+                assert a.value[0].length == b.value.length : "The number of columns in first matrix must be equal to the number of rows in the second matrix";
+
+                int rows = a.value.length;
+                int columns = b.value[0].length;
+                Matrix _b = (Matrix) b.transpose();
+
+                double[][] ret = IntStream.range(0, rows).mapToObj(
+                        r -> IntStream.range(0, columns).mapToDouble(
+                                c -> ((Vector) new Vector(a.value[r]).mul(new Vector(_b.value[c]))).sum()
+                        ).toArray()
+                ).toArray(double[][]::new);
+                return new Matrix(ret);
+            }
+            return new Scalar(0);
+        }
     }
 
     public static class NTensor implements Tensor {
@@ -153,7 +205,8 @@ public class Tensors {
             return new int[]{value.length, value[0].size()};
         }
         public String toString() {
-            return "[" + Arrays.stream(value).map(Tensor::toString).collect(Collectors.joining(",\n")) + "]";
+            String s = "[" + Arrays.stream(value).map(Tensor::toString).collect(Collectors.joining(",\n")) + "]";
+            return s.replaceAll("\\.0", "");
         }
         public Tensor copy() {
             return new NTensor(value);
@@ -181,16 +234,26 @@ public class Tensors {
             }
             return result;
         }
+        //todo: activate func
+//        public Tensor activate(ActivationFunction f) {
+//            NTensor result = new NTensor(value);
+//            result.value = IntStream.range(0, value.length).mapToObj(x -> result.value[x]).toArray(Tensor[]::new);
+//            return result;
+//        }
     }
+
     //ACTIVATION FUNCTIONS (example: relu) & OPERATIONS (example: addition)
     public interface ActivationFunction {
         double activate(double n);
     }
-    public static ActivationFunction sigmoid, relu, tanh;
+    public static ActivationFunction sigmoid, _sigmoid, relu, _relu, tanh, _tanh;
     static {
         sigmoid = x -> 1 / (1 + Math.exp(-1 * x));
+        _sigmoid = x -> x * (1 - x);
         tanh = Math::tanh;
+        _tanh = x -> 1 - (x*x);
         relu = x -> Math.max(0, x);
+        _relu = x -> (x > 0? 1: 0);
     }
 
     public interface Operation {
@@ -211,10 +274,33 @@ public class Tensors {
     public static Matrix zeros(int len, int len2) {
         return new Matrix(new double[len][len2]);
     }
+
     public static Vector arrange(int x) {
         return new Vector(IntStream.range(0, x).mapToDouble(val -> val).toArray());
     }
     public static Vector arrange(int x, int y) {
         return new Vector(IntStream.range(x, y).mapToDouble(val -> val).toArray());
+    }
+
+    public static Scalar random(int max) {
+        return new Scalar(randDouble(max));
+    }
+    public static Vector random(int len, int max) {
+        return new Vector(IntStream.range(0, len).mapToDouble(val -> randDouble(max)).toArray());
+    }
+    public static Matrix random(int x, int y, int max) {
+        ArrayList<Vector> res = new ArrayList<Vector>();
+        for (int i = 0; i < y; i++) {
+            res.add(new Vector(IntStream.range(0, x).mapToDouble(val -> randDouble(max)).toArray()));
+        }
+        return new Matrix(res);
+    }
+
+    //utils
+    private static double randDouble(int min, int max) {
+        return Math.random() * ((max - min)) + min;
+    }
+    private static double randDouble(int max) {
+        return Math.random() * max;
     }
 }
