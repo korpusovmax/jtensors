@@ -44,6 +44,17 @@ Tensor k = Tensors.arrange(5);
 k: [0.0, 1.0, 2.0, 3.0, 4.0]
 ```
 ### Operate
+#### Basic operations
+```java
+Tensor a = new Tensors.Vector(1, 4, 5.5);
+Tensor b = new Tensors.Scalar(3);
+//there are sub, add, mul, div
+System.out.println(a.sub(b));
+ ```
+ ```
+ [-2, 1, 2.5]
+ ```
+#### Custom operations
 ```java
 Tensor k = new Tensors.Vector(1, 0, 3, 4);
 k = k.operate(new Tensors.Scalar(5), (x, y) -> x * y - 3);
