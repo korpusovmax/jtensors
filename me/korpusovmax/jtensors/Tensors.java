@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class Tensors {
     //TENSORS TYPES (SCALARS/VECTORS/MATRICES/NTENSORS)
-    public static class Scalar implements Tensor {
+    public static class Scalar implements TensorInterface {
         public double value;
 
         public Scalar(double value) {
@@ -24,28 +23,32 @@ public class Tensors {
         public int[] shape() {
             return new int[]{};
         }
+        public TensorInterface getValue(int... i) {
+            assert i.length == 0: "Incorrect arguments count";
+            return this;
+        }
         public String toString() {
             return ("" + value).replaceAll("\\.0", "");
         }
-        public Tensor copy() {
+        public TensorInterface copy() {
             return new Scalar(value);
         }
 
         //element wise math operations
-        public Tensor operate(Tensor l, Operation op) {
+        public TensorInterface operate(TensorInterface l, Operation op) {
             assert l instanceof Scalar : "Illegal operation";
 
             Scalar result = new Scalar(value);
             result.value = op.activate(value, ((Scalar)l).value);
             return result;
         }
-        public Tensor activate(ActivationFunction fn) {
+        public TensorInterface activate(ActivationFunction fn) {
             return new Scalar(fn.activate(value));
         }
         //todo:dot
     }
 
-    public static class Vector implements Tensor {
+    public static class Vector implements TensorInterface {
         public double[] value;
 
         public Vector(double ...array) {
@@ -61,10 +64,17 @@ public class Tensors {
         public int[] shape() {
             return new int[]{value.length};
         }
+        public TensorInterface getValue(int... i) {
+            if (i.length == 0) {
+                return this;
+            } else {
+                return new Scalar(value[i[0]]).getValue(Arrays.copyOfRange(i, 1, i.length));
+            }
+        }
         public String toString() {
             return Arrays.toString(value).replaceAll("\\.0", "");
         }
-        public Tensor copy() {
+        public TensorInterface copy() {
             return new Vector(value);
         }
 
@@ -72,7 +82,7 @@ public class Tensors {
             return Arrays.stream(value).sum();
         }
 
-        public Tensor operate(Tensor l, Operation op) {
+        public TensorInterface operate(TensorInterface l, Operation op) {
             assert l instanceof Scalar || (l instanceof Vector && l.size() == size()) : "Illegal operation";
 
             Vector result = new Vector(value);
@@ -86,7 +96,7 @@ public class Tensors {
         public Vector activate(ActivationFunction fn) {
             return new Vector(IntStream.range(0, value.length).mapToDouble(x -> fn.activate((double)value[x])).toArray());
         }
-        public Tensor dot (Tensor l) {
+        public TensorInterface dot (TensorInterface l) {
             Matrix a = (Matrix) new Matrix(this);
 
             if (l instanceof Matrix b) {
@@ -96,7 +106,7 @@ public class Tensors {
         }
     }
 
-    public static class Matrix implements Tensor {
+    public static class Matrix implements TensorInterface {
         public double[][] value;
 
         public Matrix(double[][] array) {
@@ -127,15 +137,22 @@ public class Tensors {
         public int[] shape() {
             return new int[]{value.length, value[0].length};
         }
+        public TensorInterface getValue(int... i) {
+            if (i.length == 0) {
+                return this;
+            } else {
+                return new Vector(value[i[0]]).getValue(Arrays.copyOfRange(i, 1, i.length));
+            }
+        }
         public String toString() {
             String s = Arrays.deepToString(value).replaceAll(", \\[", ",\n\\[");
             return s.replaceAll("\\.0", "");
         }
-        public Tensor copy() {
+        public TensorInterface copy() {
             return new Matrix(value);
         }
 
-        public Tensor transpose() {
+        public TensorInterface transpose() {
             int width = value[0].length;
             int height = value.length;
 
@@ -143,7 +160,7 @@ public class Tensors {
             return new Matrix(transposed);
         }
 
-        public Tensor operate(Tensor l, Operation op) {
+        public TensorInterface operate(TensorInterface l, Operation op) {
             assert l instanceof Scalar || (l instanceof Vector && l.size() == value[0].length) || (l instanceof Matrix && ((Matrix)l).value.length == value.length && ((Matrix)l).value[0].length == value[0].length) : "Illegal operation";
 
             Matrix result = new Matrix(value);
@@ -156,12 +173,12 @@ public class Tensors {
             }
             return result;
         }
-        public Tensor activate (ActivationFunction fn) {
+        public TensorInterface activate (ActivationFunction fn) {
             Tensors.Matrix result = this;
             result.value = IntStream.range(0, value.length).mapToObj(x -> IntStream.range(0, value[0].length).mapToDouble(y -> fn.activate(result.value[x][y])).toArray()).toArray(double[][]::new);
             return result;
         }
-        public Tensor dot(Tensor l) {
+        public TensorInterface dot(TensorInterface l) {
             Matrix a = this;
 
             if (l instanceof Matrix b) {
@@ -182,14 +199,14 @@ public class Tensors {
         }
     }
 
-    public static class NTensor implements Tensor {
-        public Tensor[] value;
+    public static class NTensor implements TensorInterface {
+        public TensorInterface[] value;
 
-        public NTensor(Tensor ...array) {
-            this.value = new Tensor[array.length];
+        public NTensor(TensorInterface...array) {
+            this.value = new TensorInterface[array.length];
 
             int i = 0;
-            for (Tensor t : array) {
+            for (TensorInterface t : array) {
                 this.value[i] = t.copy();
                 i++;
             }
@@ -204,33 +221,41 @@ public class Tensors {
         public int[] shape() {
             return new int[]{value.length, value[0].size()};
         }
+        public TensorInterface getValue(int... i) {
+            if (i.length == 0) {
+                return this;
+            } else {
+                return new Tensor(value[i[0]]).tens.getValue(Arrays.copyOfRange(i, 1, i.length));
+            }
+        }
+
         public String toString() {
-            String s = "[" + Arrays.stream(value).map(Tensor::toString).collect(Collectors.joining(",\n")) + "]";
+            String s = "[" + Arrays.stream(value).map(TensorInterface::toString).collect(Collectors.joining(",\n")) + "]";
             return s.replaceAll("\\.0", "");
         }
-        public Tensor copy() {
+        public TensorInterface copy() {
             return new NTensor(value);
         }
 
-        public Tensor transpose() {
+        public TensorInterface transpose() {
             NTensor result = (NTensor) copy();
             result.value[0] = result.value[0].transpose();
             return result;
         }
-        public Tensor transpose(int axis) {
+        public TensorInterface transpose(int axis) {
             NTensor result = (NTensor) copy();
             result.value[axis] = result.value[axis].transpose();
             return result;
         }
 
-        public Tensor operate(Tensor l, Operation op) {
+        public TensorInterface operate(TensorInterface l, Operation op) {
             assert l.dims() == dims() : "Illegal operation";
 
             NTensor result = new NTensor(value);
             if (l instanceof NTensor) {
-                result.value = IntStream.range(0, value.length).mapToObj(x -> (value[x]).operate(((NTensor)l).value[x], op)).toArray(Tensor[]::new);
+                result.value = IntStream.range(0, value.length).mapToObj(x -> (value[x]).operate(((NTensor)l).value[x], op)).toArray(TensorInterface[]::new);
             } else {
-                result.value = Arrays.stream(value).map(x -> x.operate(l, op)).toArray(Tensor[]::new);
+                result.value = Arrays.stream(value).map(x -> x.operate(l, op)).toArray(TensorInterface[]::new);
             }
             return result;
         }
