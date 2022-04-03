@@ -7,6 +7,7 @@
     - [NTensor](#tensors_ntensor)
 2. [Basic functions](#funcs)
 3. [Examples](#examples)
+4. [TODO](#todo)
 ____
 <a name="about"></a>
 ## About
@@ -94,3 +95,12 @@ Result:
  [0.9935914478825549],
  [0.9921178326055041]]
 ```
+____
+<a name="todo"></a>
+## TODO
+These are some plans for the upcoming features.
+- [ ] dot product of two vectors and two scalars
+- [x] pack() and pack(int n) functions
+- [x] transpose() function
+- [x] getValue(int... i) and getDouble(int... i) functions
+- [ ] reshaping() function
