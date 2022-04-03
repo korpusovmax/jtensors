@@ -6,6 +6,7 @@
     - [Matrix](#tensors_matrix)
     - [NTensor](#tensors_ntensor)
 2. [Basic functions](#funcs)
+3. [Examples](#examples)
 ____
 <a name="about"></a>
 ## About
@@ -53,4 +54,43 @@ Tensor m = new Tensor(l, l, l);
 ____
 <a name="funcs"></a>
 ## Basic functions
-Temporarily deleted, after changing the syntax of lib :(
+All information from this article has been deleted (temporarily) after changing the syntax of lib. It will be updated soon.
+____
+<a name="examples"></a>
+## Examples
+The simplest neural network
+```java
+import me.korpusovmax.jtensors.*;
+
+public class Main {
+    public static void main(String args[]) {
+        Tensor inputs = new Tensor(
+                new Tensor(0, 0, 1),
+                new Tensor(0, 1, 1),
+                new Tensor(1, 0, 1),
+                new Tensor(1, 1, 1)
+                );
+        Tensor target = new Tensor(0, 0, 1, 1).pack().T();
+
+        Tensor syn0 = new Tensor(Tensors.random(3, 1));
+
+        Tensor l1 = new Tensor(0);
+        for (int i = 0; i < 10000; i++) {
+            Tensor l0 = inputs;
+            l1 = l0.dot(syn0).activate(Tensors.sigmoid);
+
+            Tensor l1error = target.sub(l1);
+            Tensor l1delta = l1.activate(Tensors._sigmoid).mul(l1error);
+            syn0 = syn0.add(l0.T().dot(l1delta));
+        }
+        System.out.println(l1);
+    }
+}
+```
+Result:
+```
+[[0.0096677496361140],
+ [0.0078629554744772],
+ [0.9935914478825549],
+ [0.9921178326055041]]
+```
