@@ -104,3 +104,5 @@ These are some plans for the upcoming features.
 - [x] transpose() function
 - [x] getValue(int... i) and getDouble(int... i) functions
 - [ ] reshaping() function
+- [ ] stream() function
+- [ ] maximum/minimum 
