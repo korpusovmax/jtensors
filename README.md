@@ -99,7 +99,6 @@ ____
 <a name="todo"></a>
 ## TODO
 These are some plans for the upcoming features.
-- [ ] dot product of two vectors and two scalars
 - [x] pack() and pack(int n) functions
 - [x] transpose() function
 - [x] getValue(int... i) and getDouble(int... i) functions
