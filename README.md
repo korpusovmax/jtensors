@@ -107,3 +107,5 @@ These are some plans for the upcoming features.
 - [ ] stream() function
 - [ ] maximum/minimum getters
 - [x] filter(min, max) function
+- [ ] flatten() getter
+- [ ] fill() function
