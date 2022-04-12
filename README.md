@@ -103,6 +103,7 @@ These are some plans for the upcoming features.
 - [x] pack() and pack(int n) functions
 - [x] transpose() function
 - [x] getValue(int... i) and getDouble(int... i) functions
-- [ ] reshaping() function
+- [ ] reshape() function
 - [ ] stream() function
-- [ ] maximum/minimum 
+- [ ] maximum/minimum getters
+- [x] filter(min, max) function
