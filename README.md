@@ -108,4 +108,4 @@ These are some plans for the upcoming features.
 - [x] filter(min, max) function
 - [ ] flatten() getter
 - [ ] fill() function
-- [ ] add/remove functions and creating Tensors without values
+- [ ] append/remove functions and creating Tensors without values
